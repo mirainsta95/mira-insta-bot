@@ -9,24 +9,44 @@ PASSWORD = "bekhew-bepxEd-cekse8"
 cl = Client()
 cl.login(USERNAME, PASSWORD)
 
-# Kommentare im Mira-Stil
-mira_comments = [
-    "Wow, was für starke Worte ✨",
-    "Deine Energie inspiriert mich 🙏",
-    "So viel Liebe in diesem Post 💛",
-    "Danke, dass du das teilst 💫",
-    "Genau das hab ich heute gebraucht 🤍"
+# Erweiterte Hashtag-Liste (max. 20 wird empfohlen zu durchmischen)
+hashtags = [
+    "selbstliebe", "mindsetmatters", "femaleempowerment", "freiheitfühlen",
+    "innerglow", "achtsamkeit", "positivevibes", "mentalhealth", "selfgrowth",
+    "weiblichestärke", "spiritualität", "souljourney", "persönlichkeitsentwicklung",
+    "selbstfürsorge", "stillemomente", "bewusstleben", "wachstum", "lebensfreude",
+    "vertraueninsleben", "herzensweg"
 ]
 
-# Ziel-Hashtags
-hashtags = ["selbstliebe", "mindsetmatters", "femaleempowerment", "SelbstliebeJetzt", "WeiblichkeitLeben", "FreiheitFühlen", "IchGehöreMir",
-"StilleStärke", "MindsetMagic", "FemaleEmpowerment", "InnerGlow", "WahreFreiheit", "Abendgedanken", "BalanceImAlltag", "Selbstfürsorg"]
+# Mira-Kommentare (sehr selten)
+mira_comments = [
+    "Danke fürs Teilen 💫",
+    "So schön gesagt 💛",
+    "Das hat mich gerade berührt ✨"
+]
 
-for tag in hashtags:
-    posts = cl.hashtag_medias_recent(tag, amount=5)
+# Einstellungen
+MAX_POSTS_PER_HASHTAG = 3  # Noch dezenter
+COMMENT_PROBABILITY = 0.1  # Nur 10 % der Likes werden kommentiert
+DELAY_RANGE = (120, 240)   # 2 bis 4 Minuten Pause zwischen Aktionen
+
+# Durchlaufe Hashtags
+for tag in random.sample(hashtags, 10):  # Max 10 Hashtags pro Durchlauf
+    posts = cl.hashtag_medias_recent(tag, amount=MAX_POSTS_PER_HASHTAG)
     for post in posts:
-        cl.media_like(post.id)
-        comment = random.choice(mira_comments)
-        cl.media_comment(post.id, comment)
-        print(f"💬 Kommentiert unter #{tag}: {comment}")
-        time.sleep(random.randint(30, 60))
+        try:
+            cl.media_like(post.id)
+            print(f"❤️ Like unter #{tag}")
+
+            if random.random() < COMMENT_PROBABILITY:
+                comment = random.choice(mira_comments)
+                cl.media_comment(post.id, comment)
+                print(f"💬 Kommentar: {comment}")
+
+            sleep_time = random.randint(*DELAY_RANGE)
+            print(f"⏳ Pause: {sleep_time} Sekunden…")
+            time.sleep(sleep_time)
+
+        except Exception as e:
+            print(f"⚠️ Fehler bei #{tag}: {e}")
+            time.sleep(60)  # Bei Fehler: 1 Minute cool down
